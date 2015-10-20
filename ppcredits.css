@@ -1,11 +1,16 @@
 #ppcreditsBuyPhoto {
   text-align:center;
-  margin:20px 0;
-}
-
-#ppcreditsBuyPhoto a {
+  margin:20px;
   color:#333;
   background-color:#aaa;
   border-radius:5px;
   padding:5px 10px;
+}
+
+#ppcreditsBuyPhoto ul {
+  text-align:left;
+}
+
+#ppcreditsBuyPhoto a {
+  color:#333;
 }

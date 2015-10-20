@@ -50,6 +50,7 @@ CREATE TABLE IF NOT EXISTS '.$prefixeTable.'ppcredits_spent (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` mediumint(8) unsigned NOT NULL,
   `image_id` mediumint(8) unsigned NOT NULL,
+  `size` varchar(255) not null,
   `used_on` datetime NOT NULL,
   `nb_credits` int(11) NOT NULL,
   PRIMARY KEY (`id`)

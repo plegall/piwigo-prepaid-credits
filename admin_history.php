@@ -141,8 +141,9 @@ foreach ($history_lines as $key => $row)
     $history_lines[$key]['spent'] = $row['nb_credits'];
     
     $history_lines[$key]['details'] = l10n(
-      '%s',
-      $row['name']
+      '%s (size %s)',
+      $row['name'],
+      l10n($row['size'])
       );
 
     $history_lines[$key]['details'] .= sprintf(

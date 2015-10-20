@@ -46,15 +46,23 @@ function ppcredits_init()
     'currency' => 'EUR',
     'download_period' => '7 day',
     'photo_cost' => 1,
+    'file_pattern' => '%filename%_%dimensions%',
+    'price_coefficient' => array(
+      '2small' => null, // 0.5,
+      'xsmall' => null, // 0.7,
+      'small' => 1,
+      'medium' => null, // 1.5,
+      'large' => 2,
+      'xlarge' => null,
+      'xxlarge' => null, // 4,
+      'original' => 4,
+      ),
     );
 
-  // overwrite $user['enabled_high'] depending on recent purchase
-  if ('action' == script_basename() and isset($_GET['id']) and is_numeric($_GET['id']))
+  // overwrite $user['enabled_high']: downloads managed by specific prepaid_credits/action.php
+  if ('action' == script_basename())
   {
-    if (!ppcredits_recently_purchased($_GET['id']))
-    {
-      $user['enabled_high'] = false;
-    }
+    $user['enabled_high'] = false;
   }
 }
 
@@ -147,9 +155,10 @@ SELECT
     {
       // we are on a spent line
       $history_lines[$key]['details'] = l10n(
-        '%u credits spent for %s',
+        '%u credits spent for %s (size %s)',
         $row['nb_credits'],
-        $row['name']
+        $row['name'],
+        l10n($row['size'])
         );
 
       $history_lines[$key]['details'] .= sprintf(
@@ -213,19 +222,61 @@ function ppcredits_picture()
   global $conf, $template, $user, $picture;
 
   // unset U_DOWNLOAD if user did not recently purchased the photo
-  if (!ppcredits_recently_purchased($picture['current']['id']))
-  {
-    $template->append('current', array('U_DOWNLOAD' => null), true);
-    $picture['current']['download_url'] = null;
-  }
+  $template->append('current', array('U_DOWNLOAD' => null), true);
+  $picture['current']['download_url'] = null;
   
   $template->set_prefilter('picture', 'ppcredits_picture_prefilter');
 
   $template->set_filename('credits', realpath(PPCREDITS_PATH.'picture.tpl'));
 
+  // echo '<pre>'; print_r($picture['current']['derivatives']); echo '</pre>';
+
+  $base_price = !empty($picture['current']['ppcredits_price'])
+    ? $picture['current']['ppcredits_price']
+    : $conf['ppcredits']['photo_cost']
+    ;
+
+  $sizes_purchased = array_fill_keys(ppcredits_recently_purchased_sizes($picture['current']['id']), 1);
+  // echo '<pre>'; print_r($sizes_purchased); echo '</pre>';
+  
+  $sizes = array();
+
+  $params = array(
+    'id' => $picture['current']['id'],
+    'part' => 'e',
+    'nocache' => generate_key(6),
+    'download' => null,
+    );
+  $base_dl_url = add_url_params(get_root_url().PHPWG_PLUGINS_PATH.'prepaid_credits/action.php', $params);
+  $base_dl_url.= '&amp;size=';
+
+  $size_types = array_merge(array_keys($picture['current']['derivatives']), array('original'));
+  
+  foreach ($size_types as $type)
+  {
+    if (isset($conf['ppcredits']['price_coefficient'][$type]))
+    {
+      $nb_credits = $conf['ppcredits']['price_coefficient'][$type] * $base_price;
+      
+      $size = array(
+        'type' => $type,
+        'nb_credits' => $nb_credits,
+        'label' => l10n('%s for %d credits', l10n($type), $nb_credits)
+        );
+
+      if (isset($sizes_purchased[$type]))
+      {
+        $size['download_url'] = $base_dl_url.$type;
+      }
+
+      $sizes[] = $size;
+    }
+  }
+
   $template->assign(
     array(
       'CREDITS_LEFT' => $user['ppcredits'],
+      'ppcredits_sizes' => $sizes,
       'PHOTO_NB_CREDITS' => !empty($picture['current']['ppcredits_price'])
         ? $picture['current']['ppcredits_price']
         : $conf['ppcredits']['photo_cost'],

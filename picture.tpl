@@ -5,7 +5,8 @@
 
 {footer_script}
 jQuery("#ppcreditsBuyPhoto a.buy").click(function(){
-  var cost = jQuery("#ppcreditsBuyPhoto").data("credits_cost");
+  var cost = jQuery(this).data("cost");
+  var size = jQuery(this).data("size");
 
   if (jQuery("#ppcreditsBuyPhoto").data("credits_left") >= cost) {
     swal({
@@ -20,7 +21,8 @@ jQuery("#ppcreditsBuyPhoto a.buy").click(function(){
         url: "ws.php?format=json&method=ppcredits.photo.buy",
         type:"POST",
         data: {
-          image_id : jQuery("#ppcreditsBuyPhoto").data("image_id")
+          image_id : jQuery("#ppcreditsBuyPhoto").data("image_id"),
+          size : size
         },
         success:function(data) {
           var data = jQuery.parseJSON(data);
@@ -56,10 +58,17 @@ jQuery("#ppcreditsBuyPhoto a.buy").click(function(){
 });
 {/footer_script}
 
-<div id="ppcreditsBuyPhoto" data-credits_left="{$CREDITS_LEFT}" data-credits_cost="{$PHOTO_NB_CREDITS}" data-image_id="{$current.id}">
-{if isset($current.U_DOWNLOAD)}
-  <a class="download" href="{$current.U_DOWNLOAD}">{'Download this file'|@translate}</a>
-{else}
-  <a class="buy" href="#">Download this photo for {$PHOTO_NB_CREDITS} credits</a>
-{/if}
+<div id="ppcreditsBuyPhoto" data-credits_left="{$CREDITS_LEFT}" data-image_id="{$current.id}">
+{'Download this file'|@translate}
+<ul>
+{foreach from=$ppcredits_sizes item=size}
+  <li>
+  {if isset($size.download_url)}
+    <a class="download" href="{$size.download_url}">{$size.type|translate}</a>
+  {else}
+    <a class="buy" href="#" data-cost="{$size.nb_credits}" data-size="{$size.type}">{$size.label}</a>
+  {/if}
+  </li>
+{/foreach}
+</ul>
 </div>

@@ -281,6 +281,12 @@ function ws_ppcredits_photo_buy($params, &$service)
 {
   global $conf, $user;
 
+  // is this size on sale?
+  if (!isset($conf['ppcredits']['price_coefficient'][ $params['size'] ]))
+  {
+    return new PwgError(404, "size not found");
+  }
+
   // does the photo exists?
   $query = '
 SELECT *
@@ -299,7 +305,7 @@ SELECT *
   list($dbnow) = pwg_db_fetch_row(pwg_query('SELECT NOW()'));
   
   // has this image already been recently bought by the same user?
-  if (ppcredits_recently_purchased($image['id']))
+  if (ppcredits_recently_purchased($image['id'], $params['size']))
   {
     return new PwgError(401, "already purchased recently");
   }
@@ -310,6 +316,8 @@ SELECT *
   {
     $image_credits = $conf['ppcredits']['photo_cost'];
   }
+
+  $image_credits *= $conf['ppcredits']['price_coefficient'][ $params['size'] ];
   
   // does the user has enough credits?
   if ($user['ppcredits'] < $image_credits)
@@ -322,6 +330,7 @@ SELECT *
     array(
       'user_id' => $user['id'],
       'image_id' => $image['id'],
+      'size' => $params['size'],
       'nb_credits' => $image_credits,
       'used_on' => $dbnow,
       )
@@ -350,24 +359,99 @@ UPDATE '.USER_INFOS_TABLE.'
     );
 }
 
-function ppcredits_recently_purchased($image_id)
+function ppcredits_recently_purchased($image_id, $size)
 {
-  global $user, $conf;
+  $sizes = ppcredits_recently_purchased_sizes($image_id);
 
-  $query = '
-SELECT COUNT(*)
-  FROM '.PPCREDITS_SPENT_TABLE.'
-  WHERE image_id = '.$image_id.'
-    AND user_id = '.$user['id'].'
-    AND used_on > SUBDATE(NOW(), INTERVAL '.$conf['ppcredits']['download_period'].')
-;';
-  list($counter) = pwg_db_fetch_row(pwg_query($query));
-  
-  if ($counter > 0)
+  if (in_array($size, $sizes))
   {
     return true;
   }
 
   return false;
+}
+
+function ppcredits_recently_purchased_sizes($image_id)
+{
+  global $user, $conf;
+
+  $query = '
+SELECT
+    size
+  FROM '.PPCREDITS_SPENT_TABLE.'
+  WHERE image_id = '.$image_id.'
+    AND user_id = '.$user['id'].'
+    AND used_on > SUBDATE(NOW(), INTERVAL '.$conf['ppcredits']['download_period'].')
+;';
+  $sizes = query2array($query, null, 'size');
+  
+  return $sizes;
+}
+
+/**
+ * getFilename function, copied from Batch Manager
+ */
+function ppcredits_getFilename($row, $filesize=array())
+{
+  global $conf;
+
+  $row['filename'] = stripslashes(get_filename_wo_extension($row['file']));
+
+  // datas
+  $search = array('%id%', '%filename%', '%author%', '%dimensions%');
+  $replace = array($row['id'], $row['filename']);
+
+  $replace[2] = empty($row['author']) ? null : $row['author'];
+  $replace[3] = empty($filesize) ? null : $filesize['width'].'x'.$filesize['height'];
+
+  $filename = str_replace($search, $replace, $conf['ppcredits']['file_pattern']);
+
+  // functions
+  $filename = preg_replace_callback('#\$escape\((.*?)\)#', create_function('$m', 'return str2url($m[1]);'),   $filename);
+  $filename = preg_replace_callback('#\$upper\((.*?)\)#',  create_function('$m', 'return str2upper($m[1]);'), $filename);
+  $filename = preg_replace_callback('#\$lower\((.*?)\)#',  create_function('$m', 'return str2lower($m[1]);'), $filename);
+  $filename = preg_replace_callback('#\$strpad\((.*?),(.*?),(.*?)\)#', create_function('$m', 'return str_pad($m[1],$m[2],$m[3],STR_PAD_LEFT);'), $filename);
+
+  // cleanup
+  $filename = preg_replace(
+    array('#_+#', '#-+#', '# +#', '#^([_\- ]+)#', '#([_\- ]+)$#'),
+    array('_', '-', ' ', null, null),
+    $filename
+    );
+
+  if (empty($filename) || $filename == $conf['ppcredits']['file_pattern'])
+  {
+    $filename = $row['filename'];
+  }
+
+  $filename.= '.'.get_extension($row['path']);
+
+  return $filename;
+}
+
+if (!function_exists('str2lower'))
+{
+  if (function_exists('mb_strtolower') && defined('PWG_CHARSET'))
+  {
+    function str2lower($term)
+    {
+      return mb_strtolower($term, PWG_CHARSET);
+    }
+    function str2upper($term)
+    {
+      return mb_strtoupper($term, PWG_CHARSET);
+    }
+  }
+  else
+  {
+    function str2lower($term)
+    {
+      return strtolower($term);
+    }
+    function str2upper($term)
+    {
+      return strtoupper($term);
+    }
+  }
 }
 ?>
