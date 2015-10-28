@@ -55,6 +55,7 @@ var oTable = jQuery('#historyTable').dataTable({});
 <tr class="throw">
 	<th class="dtc_date">{'Date'|@translate}</th>
 	<th class="dtc_user">{'User'|@translate}</th>
+	<th class="dtc_user">{'User Email'|@translate}</th>
 	<th class="dtc_stat">{'Credits paid'|@translate}</th>
 	<th class="dtc_stat">{'Credits spent'|@translate}</th>
 	<th class="dtc_stat">{'Details'|@translate}</th>
@@ -66,6 +67,7 @@ var oTable = jQuery('#historyTable').dataTable({});
 <tr>
 <td>{$history.occured_on}</td>
 <td>{$history.user}</td>
+<td>{$history.user_email}</td>
 <td>{$history.paid}</td>
 <td>{$history.spent}</td>
 <td class="historyDetails">{$history.details}</td>

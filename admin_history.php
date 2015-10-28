@@ -57,6 +57,7 @@ $query = '
 SELECT
     '.$conf['user_fields']['id'].' AS id,
     '.$conf['user_fields']['username'].' AS username,
+    '.$conf['user_fields']['email'].' AS email,
     ppcredits
   FROM '.USERS_TABLE.' AS u
     INNER JOIN '.USER_INFOS_TABLE.' AS uf ON uf.user_id = u.'.$conf['user_fields']['id'].'
@@ -121,6 +122,11 @@ foreach ($history_lines as $key => $row)
   
   $history_lines[$key]['user'] = isset($user_details[ $row['user_id'] ])
     ? $user_details[ $row['user_id'] ]['username']
+    : 'deleted'
+    ;
+
+  $history_lines[$key]['user_email'] = isset($user_details[ $row['user_id'] ])
+    ? $user_details[ $row['user_id'] ]['email']
     : 'deleted'
     ;
 
