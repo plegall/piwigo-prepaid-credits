@@ -353,6 +353,62 @@ UPDATE '.USER_INFOS_TABLE.'
   WHERE user_id = '.$spent['user_id'].'
 ;';
   pwg_query($query);
+
+  // notify photo owner
+
+  // we need username + email
+  $query = '
+SELECT
+    '.$conf['user_fields']['username'].' AS username,
+    '.$conf['user_fields']['email'].' AS email
+  FROM '.USERS_TABLE.'
+  WHERE '.$conf['user_fields']['id'].' = '.$image['added_by'].'
+;';
+  $users = query2array($query);
+
+  if (count($users) > 0)
+  {
+    $owner = array_shift($users);
+
+    if (email_check_format($owner['email']))
+    {
+      include_once(PHPWG_ROOT_PATH.'include/functions_mail.inc.php');
+
+      // force $conf['derivative_url_style'] to 2 (script) to make sure we
+      // will use i.php?/upload and not _data/i/upload because you don't
+      // know when the cache will be flushed
+      $previous_derivative_url_style = $conf['derivative_url_style'];
+      $conf['derivative_url_style'] = 2;
+
+      $thumb_url = DerivativeImage::thumb_url(
+        array(
+          'id' => $image['id'],
+          'path' => $image['path'],
+          )
+        );
+
+      // restore configuration setting
+      $conf['derivative_url_style'] = $previous_derivative_url_style;
+
+      $content = 'Congratulations!';
+      $content.= '<br><br>';
+      $content.= l10n('Your photo "%s" was sold, size %s', $image['name'], $params['size']);
+      $content.= '<br><br><img src="'.$thumb_url.'">';
+
+      $subject = l10n('new sale');
+
+      pwg_mail(
+        $owner['email'],
+        array(
+          'subject' => '['. $conf['gallery_title'] .'] '. $subject,
+          'mail_title' => $conf['gallery_title'],
+          'mail_subtitle' => $subject,
+          'content' => $content,
+          'content_format' => 'text/html',
+          )
+        );
+    }
+  }
   
   return array(
     'nb_credits' => $spent['nb_credits'],
