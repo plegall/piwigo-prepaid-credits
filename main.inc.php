@@ -130,6 +130,7 @@ SELECT
   $spent_lines = query2array($query);
 
   $history_lines = array_merge($paid_lines, $spent_lines);
+  $occured_on = array();
 
   // echo '<pre>'; print_r($history_lines); echo '</pre>';
 
