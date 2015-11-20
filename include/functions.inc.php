@@ -89,7 +89,11 @@ SELECT
 }
 
 function ws_ppcredits_paypal_ipn($params, &$service)
-// function ppcredits_paypal_ipn()
+{
+  ppcredits_paypal_ipn();
+}
+
+function ppcredits_paypal_ipn()
 {
   // notification default subject/message
   $notification_subject_prefix = 'Paypal IPN, ';

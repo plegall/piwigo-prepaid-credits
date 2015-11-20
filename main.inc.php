@@ -104,8 +104,8 @@ function ppcredits_end_profile()
       'MONEY_AMOUNT' => $default_nb_credits * $conf['ppcredits']['price_per_credit'],
       'CURRENCY' => $conf['ppcredits']['currency'],
       'RETURN_URL' => get_absolute_root_url().'profile.php',
-      'IPN_URL' => get_absolute_root_url().'ws.php?method=ppcredits.paypal.ipn',
-//      'IPN_URL' => 'http://pigolabs.com/dev/lavaprint/ipn.php',
+      // 'IPN_URL' => get_absolute_root_url().'ws.php?method=ppcredits.paypal.ipn',
+      'IPN_URL' => get_absolute_root_url().'plugins/prepaid_credits/paypal_ipn.php',
       )
     );
 
