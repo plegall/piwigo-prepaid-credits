@@ -63,6 +63,75 @@ function do_error( $code, $str )
   exit();
 }
 
+/**
+ * compared to i.php, this function does not apply the watermark (and only
+ * keep code relevant for ppcredits plugin)
+ */
+function ppcredits_generate_temporary_derivative($element_info, $type, $params)
+{
+  global $conf;
+  
+  $src_path = PHPWG_ROOT_PATH.$element_info['path'];
+  $derivative_filename = $element_info['id'].'-'.$type.'-'.generate_key(20).'.'.get_extension($element_info['path']);
+  $derivative_path = PHPWG_ROOT_PATH.$conf['data_location'].'prepaid_credits/'.$derivative_filename;
+
+  include_once(PHPWG_ROOT_PATH.'admin/include/image.class.php');
+
+  if (!isset($element_info['rotation']))
+  {
+    $rotation_angle = pwg_image::get_rotation_angle($src_path);
+  }
+  else
+  {
+    $rotation_angle = pwg_image::get_rotation_angle_from_code($element_info['rotation']);
+  }
+
+  if (!mkgetdir(dirname($derivative_path)))
+  {
+    die("dir create error");
+  }
+
+  ignore_user_abort(true);
+  @set_time_limit(0);
+
+  $image = new pwg_image($src_path);
+
+  // rotate
+  if (0 != $rotation_angle)
+  {
+    $image->rotate($rotation_angle);
+  }
+
+  // Crop & scale
+  $o_size = $d_size = array($image->get_width(),$image->get_height());
+  $params->sizing->compute($o_size, $element_info['coi'], $crop_rect, $scaled_size);
+  if ($crop_rect)
+  {
+    $image->crop( $crop_rect->width(), $crop_rect->height(), $crop_rect->l, $crop_rect->t);
+  }
+
+  if ($scaled_size)
+  {
+    $image->resize( $scaled_size[0], $scaled_size[1] );
+    $d_size = $scaled_size;
+  }
+
+  if ($params->sharpen)
+  {
+    $image->sharpen( $params->sharpen );
+  }
+
+  if ($d_size[0]*$d_size[1] < $conf['derivatives_strip_metadata_threshold'])
+  {// strip metadata for small images
+    $image->strip();
+  }
+
+  $image->set_compression_quality(ImageStdParams::$quality);
+  $image->write($derivative_path);
+  $image->destroy();
+
+  return $derivative_path;
+}
 
 if (!isset($_GET['id'])
     or !is_numeric($_GET['id'])
@@ -84,7 +153,6 @@ if ( empty($element_info) )
 }
 
 $sizes_purchased = array_fill_keys(ppcredits_recently_purchased_sizes($_GET['id']), 1);
-echo '<pre>'; print_r($sizes_purchased); echo '</pre>';
 
 // $filter['visible_categories'] and $filter['visible_images']
 // are not used because it's not necessary (filter <> restriction)
@@ -115,7 +183,17 @@ switch ($_GET['part'])
     //---- specific ppcredits, start
     if (isset($_GET['size']) and 'original' != $_GET['size'])
     {
-      if (!in_array($_GET['size'], array_keys(ImageStdParams::get_defined_type_map())))
+      foreach (ImageStdParams::get_all_type_map() as $type => $params)
+      {
+        if ($type == $_GET['size'])
+        {
+          $page['derivative_type'] = $type;
+          $page['derivative_params'] = $params;
+          break;
+        }
+      }
+
+      if (!isset($page['derivative_type']))
       {
         die('Hacking attempt: unknown size');
       }
@@ -124,18 +202,15 @@ switch ($_GET['part'])
       {
         die('Hacking attempt: size '.$_GET['size'].' not purchased');
       }
+
+      $file = ppcredits_generate_temporary_derivative(
+        $element_info,
+        $page['derivative_type'],
+        $page['derivative_params']
+        );
       
-      $deriv = new DerivativeImage($_GET['size'], new SrcImage($element_info));
-      if (!file_exists($deriv->get_path()))
-      {
-        include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
-        
-        set_make_full_url();
-        fetchRemote($deriv->get_url().'&ajaxload=true', $dest);
-        unset_make_full_url();
-      }
-      $file = $deriv->get_path();
-      $size = $deriv->get_size();
+      $page['delete_temporary_derivative'] = true;
+      $size = getimagesize($file);
 
       // change the name of the file for download, suffix with _widthxheight before the extension
       $element_info['file'] = ppcredits_getFilename(
@@ -252,4 +327,8 @@ if (ini_get('safe_mode') == 0)
 
 @readfile($file);
 
+if (isset($page['delete_temporary_derivative']) and $page['delete_temporary_derivative'])
+{
+  unlink($file);
+}
 ?>
