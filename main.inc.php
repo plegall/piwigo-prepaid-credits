@@ -360,4 +360,115 @@ function ppcredits_batch_global_submit($action, $collection)
     $page['infos'][] = l10n('Information data registered in database');
   }
 }
+
+// +-----------------------------------------------------------------------+
+// | User Manager                                                          |
+// +-----------------------------------------------------------------------+
+
+add_event_handler('loc_begin_admin_page', 'ppcredits_add_users_column');
+function ppcredits_add_users_column()
+{
+  global $template;
+  
+  $template->set_prefilter('user_list', 'ppcredits_add_users_column_prefilter');
+}
+
+function ppcredits_add_users_column_prefilter($content, &$smarty)
+{
+  // add the "Credits" column in the user table
+  $search = '<th>{\'registration date\'|@translate}</th>';
+  $content = str_replace($search, $search.'<th>{\'Credits\'|@translate}</th>', $content);
+
+  // add the "add_credits" action in the select list
+  $search = '<option value="show_nb_hits">';
+  $replace = '<option value="add_credits">Add credits</option>'.$search;
+  $content = str_replace($search, $replace, $content);
+  
+  // add the "add_credits" action
+  $search = '<p id="applyActionBlock"';
+  $replace = '{* add_credits *}
+    <div id="action_add_credits" class="bulkAction">
+      <input name="nb_credits" type="number" value="5" min="1" max="999"> credits
+    </div>'.$search;
+  $content = str_replace($search, $replace, $content);
+
+  // add the "add_credits" js action
+  $search = 'default:';
+  $replace = '
+      case \'add_credits\':
+        data.add_credits = jQuery("input[name=nb_credits]").val();
+        break;
+      default:';
+  $content = str_replace($search, $replace, $content);
+
+  return $content;
+}
+
+add_event_handler('user_list_columns', 'ppcredits_user_list_columns', EVENT_HANDLER_PRIORITY_NEUTRAL+1, 1);
+function ppcredits_user_list_columns($aColumns)
+{
+  $aColumns[] = 'ppcredits';
+
+  return $aColumns;
+}
+
+add_event_handler('ws_invoke_allowed', 'ppcredits_ws_users_setInfo', EVENT_HANDLER_PRIORITY_NEUTRAL, 3);
+function ppcredits_ws_users_setInfo($res, $methodName, $params)
+{
+  check_input_parameter('add_credits', $_POST, false, PATTERN_ID);
+  
+  if ($methodName != 'pwg.users.setInfo')
+  {
+    return $res;
+  }
+
+  if (!isset($_POST['add_credits']))
+  {
+    return $res;
+  }
+
+  if (count($params['user_id']) == 0)
+  {
+    return $res;
+  }
+
+  $query = '
+UPDATE '.USER_INFOS_TABLE.'
+  SET ppcredits = ppcredits + '.$_POST['add_credits'].'
+  WHERE user_id IN ('.implode(',', $params['user_id']).')
+;';
+  pwg_query($query);
+
+  return $res;
+}
+
+add_event_handler('ws_users_getList', 'ppcredits_ws_users_getList', EVENT_HANDLER_PRIORITY_NEUTRAL, 1);
+function ppcredits_ws_users_getList($users)
+{
+  $user_ids = array();
+  foreach ($users as $user_id => $user)
+  {
+    $user_ids[] = $user_id;
+  }
+
+  if (count($user_ids) == 0)
+  {
+    return $users;
+  }
+
+  $query = '
+SELECT
+    user_id,
+    ppcredits
+  FROM '.USER_INFOS_TABLE.'
+  WHERE user_id IN ('.implode(',', $user_ids).')
+;';
+  $result = pwg_query($query);
+  while ($row = pwg_db_fetch_assoc($result))
+  {
+    $users[$row['user_id']]['ppcredits'] = $row['ppcredits'];
+  }
+
+  return $users;
+}
 ?>
