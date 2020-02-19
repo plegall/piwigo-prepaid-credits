@@ -9,7 +9,8 @@
 <fieldset>
   <legend>Credits</legend>
   <p>You have {$CREDITS_LEFT} credits left</p>
-  <p>Buy <input name="nb_credits" type="number" value="{$NB_CREDITS}" min="1" max="999"> credits (<span data-unitprice="{$PRICE_PER_CREDIT}" id="money_amount">{$MONEY_AMOUNT}</span> {$CURRENCY})
+{if $SELL_CREDITS}
+  <p>Buy <input name="nb_credits" type="number" value="{$NB_CREDITS}" min="1" max="999" step="1"> credits (<span data-unitprice="{$PRICE_PER_CREDIT}" id="money_amount">{$MONEY_AMOUNT}</span> {$CURRENCY})
     <input type="submit" value="{'Pay on Paypal.com'|@translate}" id="paypalButton">
     <img class="loading" src="themes/default/images/ajax-loader-small.gif">
   </p>
@@ -29,7 +30,7 @@
   <input type="hidden" name="cancel_return" value="{$RETURN_URL}&amp;cancel=1" />
   <input type="hidden" name="notify_url" value="{$IPN_URL}" />
 </form>
-
+{/if}
 </fieldset>
 
 

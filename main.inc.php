@@ -39,25 +39,7 @@ function ppcredits_init()
   global $conf, $user;
 
   // prepare plugin configuration
-  // $conf['ppcredits'] = safe_unserialize($conf['ppcredits']);
-  $conf['ppcredits'] = array(
-    'paypal_account' => 'paypal@piwigo.com',
-    'price_per_credit' => 0.01,
-    'currency' => 'EUR',
-    'download_period' => '7 day',
-    'photo_cost' => 1,
-    'file_pattern' => '%filename%_%dimensions%',
-    'price_coefficient' => array(
-      '2small' => null, // 0.5,
-      'xsmall' => null, // 0.7,
-      'small' => 1,
-      'medium' => null, // 1.5,
-      'large' => 2,
-      'xlarge' => null,
-      'xxlarge' => null, // 4,
-      'original' => 4,
-      ),
-    );
+  $conf['ppcredits'] = safe_unserialize($conf['ppcredits']);
 
   // overwrite $user['enabled_high']: downloads managed by specific prepaid_credits/action.php
   if ('action' == script_basename())
@@ -99,15 +81,24 @@ function ppcredits_end_profile()
     array(
       'CREDITS_LEFT' => $user['ppcredits'],
       'NB_CREDITS' => $default_nb_credits,
-      'PRICE_PER_CREDIT' => $conf['ppcredits']['price_per_credit'],
-      'PAYPAL_ACCOUNT' => $conf['ppcredits']['paypal_account'],
-      'MONEY_AMOUNT' => $default_nb_credits * $conf['ppcredits']['price_per_credit'],
-      'CURRENCY' => $conf['ppcredits']['currency'],
-      'RETURN_URL' => get_absolute_root_url().'profile.php',
-      // 'IPN_URL' => get_absolute_root_url().'ws.php?method=ppcredits.paypal.ipn',
-      'IPN_URL' => get_absolute_root_url().'plugins/prepaid_credits/paypal_ipn.php',
+      'SELL_CREDITS' => $conf['ppcredits']['sell_credits'],
       )
     );
+
+  if ($conf['ppcredits']['sell_credits'])
+  {
+    $template->assign(
+      array(
+        'PRICE_PER_CREDIT' => $conf['ppcredits']['price_per_credit'],
+        'PAYPAL_ACCOUNT' => $conf['ppcredits']['paypal_account'],
+        'MONEY_AMOUNT' => $default_nb_credits * $conf['ppcredits']['price_per_credit'],
+        'CURRENCY' => $conf['ppcredits']['currency'],
+        'RETURN_URL' => get_absolute_root_url().'profile.php',
+        // 'IPN_URL' => get_absolute_root_url().'ws.php?method=ppcredits.paypal.ipn',
+        'IPN_URL' => get_absolute_root_url().'plugins/prepaid_credits/paypal_ipn.php',
+        )
+      );
+  }
 
   $query = '
 SELECT

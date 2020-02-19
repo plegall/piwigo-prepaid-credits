@@ -3,7 +3,24 @@ defined('PHPWG_ROOT_PATH') or die('Hacking attempt!');
 
 class prepaid_credits_maintain extends PluginMaintain
 {
-  private $installed = false;
+  private $default_conf = array(
+    'sell_credits' => false,
+    'paypal_account' => '',
+    'price_per_credit' => 1,
+    'currency' => 'EUR',
+    'download_period' => '7 day',
+    'photo_cost' => 1, // in credits
+    'price_coefficient' => array(
+      '2small' => null,
+      'xsmall' => null,
+      'small' => 1,
+      'medium' => null,
+      'large' => 2,
+      'xlarge' => null,
+      'xxlarge' => null,
+      'original' => 4,
+      ),
+    );
 
   function __construct($plugin_id)
   {
@@ -12,8 +29,13 @@ class prepaid_credits_maintain extends PluginMaintain
 
   function install($plugin_version, &$errors=array())
   {
-    global $prefixeTable;
-    
+    global $prefixeTable, $conf;
+
+    if (empty($conf['ppcredits']))
+    {
+      conf_update_param('ppcredits', $this->default_conf, true);
+    }
+
     // create images.ppcredits_price
     $result = pwg_query('SHOW COLUMNS FROM `'.IMAGES_TABLE.'` LIKE "ppcredits_price";');
     if (!pwg_db_num_rows($result))
@@ -57,18 +79,6 @@ CREATE TABLE IF NOT EXISTS '.$prefixeTable.'ppcredits_spent (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8
 ;';
     pwg_query($query);
-    
-    $this->installed = true;
-  }
-
-  function activate($plugin_version, &$errors=array())
-  {
-    global $prefixeTable;
-    
-    if (!$this->installed)
-    {
-      $this->install($plugin_version, $errors);
-    }
   }
 
   function update($old_version, $new_version, &$errors=array())
@@ -76,14 +86,12 @@ CREATE TABLE IF NOT EXISTS '.$prefixeTable.'ppcredits_spent (
     $this->install($new_version, $errors);
   }
   
-  function deactivate()
-  {
-  }
-
   function uninstall()
   {
     global $prefixeTable;
-  
+
+    conf_delete_param('ppcredits');
+
     pwg_query('DROP TABLE '.$prefixeTable.'ppcredits_paid;');
     pwg_query('DROP TABLE '.$prefixeTable.'ppcredits_spent;');
     pwg_query('ALTER TABLE '.IMAGES_TABLE.' DROP COLUMN ppcredits_price;');

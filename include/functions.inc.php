@@ -455,6 +455,12 @@ function ppcredits_getFilename($row, $filesize=array())
 {
   global $conf;
 
+  $file_pattern = '%filename%_%dimensions%';
+  if (isset($conf['ppcredits_file_pattern']))
+  {
+    $file_pattern = $conf['ppcredits_file_pattern'];
+  }
+
   $row['filename'] = stripslashes(get_filename_wo_extension($row['file']));
 
   // datas
@@ -464,7 +470,7 @@ function ppcredits_getFilename($row, $filesize=array())
   $replace[2] = empty($row['author']) ? null : $row['author'];
   $replace[3] = empty($filesize) ? null : $filesize['width'].'x'.$filesize['height'];
 
-  $filename = str_replace($search, $replace, $conf['ppcredits']['file_pattern']);
+  $filename = str_replace($search, $replace, $file_pattern);
 
   // functions
   $filename = preg_replace_callback('#\$escape\((.*?)\)#', create_function('$m', 'return str2url($m[1]);'),   $filename);
@@ -479,7 +485,7 @@ function ppcredits_getFilename($row, $filesize=array())
     $filename
     );
 
-  if (empty($filename) || $filename == $conf['ppcredits']['file_pattern'])
+  if (empty($filename) || $filename == $file_pattern)
   {
     $filename = $row['filename'];
   }
