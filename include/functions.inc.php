@@ -413,9 +413,20 @@ SELECT
         );
     }
   }
+
+  $params = array(
+    'id' => $image['id'],
+    'part' => 'e',
+    'nocache' => generate_key(6),
+    'download' => null,
+    'size' => $params['size'],
+    );
+  $download_url = add_url_params(get_root_url().PHPWG_PLUGINS_PATH.'prepaid_credits/action.php', $params);
   
   return array(
     'nb_credits' => $spent['nb_credits'],
+    'download_url' => $download_url,
+    'size_label' => l10n($params['size']),
     );
 }
 
