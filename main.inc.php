@@ -46,6 +46,9 @@ function ppcredits_init()
   {
     $user['enabled_high'] = false;
   }
+
+  load_language('plugin.lang', dirname(__FILE__).'/');
+  load_language('lang', PHPWG_ROOT_PATH.PWG_LOCAL_DIR, array('no_fallback'=>true, 'local'=>true) );
 }
 
 add_event_handler('get_admin_plugin_menu_links', 'ppcredits_admin_menu');
@@ -272,6 +275,9 @@ function ppcredits_picture()
       'PHOTO_NB_CREDITS' => !empty($picture['current']['ppcredits_price'])
         ? $picture['current']['ppcredits_price']
         : $conf['ppcredits']['photo_cost'],
+      'MISSING_CREDITS_SENTENCE' => $conf['ppcredits']['sell_credits']
+        ? l10n('No worry! <a href="%s">Buy more credits on your profile page.</a>', 'profile.php')
+        : l10n('Need more? Contact us to get more credits.')
       )
     );
 
