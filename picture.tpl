@@ -64,6 +64,8 @@ jQuery("#ppcreditsBuyPhoto a.buy").click(function(){
   }
   else {
     jQuery.confirm({
+      theme: 'modern',
+      useBootstrap: false,
       title: "Not enough credits!",
       content: 'No worry! <a href="profile.php">Buy more credits on your profile page.</a>',
     });
