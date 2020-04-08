@@ -54,7 +54,9 @@ $user_ids_paid = query2array($query, null, 'user_id');
 
 $user_ids = array_unique(array_merge($user_ids_spent, $user_ids_paid));
 
-$query = '
+if (count($user_ids) > 0)
+{
+  $query = '
 SELECT
     '.$conf['user_fields']['id'].' AS id,
     '.$conf['user_fields']['username'].' AS username,
@@ -64,12 +66,12 @@ SELECT
     INNER JOIN '.USER_INFOS_TABLE.' AS uf ON uf.user_id = u.'.$conf['user_fields']['id'].'
   WHERE id IN ('.join(',', $user_ids).')
 ;';
-$result = pwg_query($query);
-while ($row = pwg_db_fetch_assoc($result))
-{
-  $users[$row['id']] = $row['username'].' ('.$row['ppcredits'].' credits left)';
-
-  $user_details[ $row['id'] ] = $row;
+  $result = pwg_query($query);
+  while ($row = pwg_db_fetch_assoc($result))
+  {
+    $users[$row['id']] = $row['username'].' ('.$row['ppcredits'].' credits left)';
+    $user_details[ $row['id'] ] = $row;
+  }
 }
 
 natcasesort($users);
