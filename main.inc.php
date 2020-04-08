@@ -378,14 +378,18 @@ function ppcredits_add_users_column_prefilter($content, &$smarty)
 
   // add the "add_credits" action in the select list
   $search = '<option value="show_nb_hits">';
-  $replace = '<option value="add_credits">Add credits</option>'.$search;
+  $replace = '<option value="add_credits">Add credits</option><option value="remove_credits">Remove credits</option>'.$search;
   $content = str_replace($search, $replace, $content);
   
   // add the "add_credits" action
   $search = '<p id="applyActionBlock"';
   $replace = '{* add_credits *}
     <div id="action_add_credits" class="bulkAction">
-      <input name="nb_credits" type="number" value="5" min="1" max="999"> credits
+      <input name="add_credits" type="number" value="5" min="1" max="999"> credits
+    </div>
+    {* remove_credits *}
+    <div id="action_remove_credits" class="bulkAction">
+      <input name="remove_credits" type="number" value="5" min="1" max="999"> credits
     </div>'.$search;
   $content = str_replace($search, $replace, $content);
 
@@ -393,7 +397,10 @@ function ppcredits_add_users_column_prefilter($content, &$smarty)
   $search = 'default:';
   $replace = '
       case \'add_credits\':
-        data.add_credits = jQuery("input[name=nb_credits]").val();
+        data.add_credits = jQuery("input[name=add_credits]").val();
+        break;
+      case \'remove_credits\':
+        data.remove_credits = jQuery("input[name=remove_credits]").val();
         break;
       default:';
   $content = str_replace($search, $replace, $content);
@@ -413,13 +420,9 @@ add_event_handler('ws_invoke_allowed', 'ppcredits_ws_users_setInfo', EVENT_HANDL
 function ppcredits_ws_users_setInfo($res, $methodName, $params)
 {
   check_input_parameter('add_credits', $_POST, false, PATTERN_ID);
+  check_input_parameter('remove_credits', $_POST, false, PATTERN_ID);
   
   if ($methodName != 'pwg.users.setInfo')
-  {
-    return $res;
-  }
-
-  if (!isset($_POST['add_credits']))
   {
     return $res;
   }
@@ -429,12 +432,83 @@ function ppcredits_ws_users_setInfo($res, $methodName, $params)
     return $res;
   }
 
-  $query = '
+  if (isset($_POST['add_credits']) or isset($_POST['remove_credits']))
+  {
+    $query = '
+SELECT
+    `user_id`,
+    `ppcredits`
+  FROM '.USER_INFOS_TABLE.'
+  WHERE `user_id` IN ('.implode(',', $params['user_id']).')
+;';
+    $credits_of_user = query2array($query, 'user_id', 'ppcredits');
+  }
+
+  if (isset($_POST['add_credits']))
+  {
+    $query = '
 UPDATE '.USER_INFOS_TABLE.'
   SET ppcredits = ppcredits + '.$_POST['add_credits'].'
   WHERE user_id IN ('.implode(',', $params['user_id']).')
 ;';
-  pwg_query($query);
+    pwg_query($query);
+
+    foreach ($params['user_id'] as $user_id)
+    {
+      pwg_activity(
+        'user',
+        $user_id,
+        'add_credits',
+        array(
+          'add_credits' => (int)$_POST['add_credits'],
+          'ppcredits' => $credits_of_user[$user_id] + $_POST['add_credits'],
+        )
+      );
+    }
+  }
+
+  if (isset($_POST['remove_credits']))
+  {
+    // we let the admin remove as many credits as (s)he wants, event bought ones.
+    // That is not perfect. We should instead calculate how many given credits
+    // were not consumed and remove only from those. Not from unused bought credits.
+    $updates = array();
+
+    foreach ($params['user_id'] as $user_id)
+    {
+      $new_ppcredits = max(0, $credits_of_user[$user_id] - $_POST['remove_credits']);
+
+      if ($new_ppcredits < $credits_of_user[$user_id])
+      {
+        $updates[] = array(
+          'user_id' => $user_id,
+          'ppcredits' => $new_ppcredits,
+        );
+
+        pwg_activity(
+          'user',
+          $user_id,
+          'remove_credits',
+          array(
+            'remove_credits' => $credits_of_user[$user_id] - $new_ppcredits,
+            'ppcredits' => $new_ppcredits,
+          )
+        );
+      }
+    }
+
+    if (count($updates) > 0)
+    {
+      mass_updates(
+        USER_INFOS_TABLE,
+        array(
+          'primary' => array('user_id'),
+          'update' => array('ppcredits')
+        ),
+        $updates
+      );
+    }
+  }
 
   return $res;
 }
