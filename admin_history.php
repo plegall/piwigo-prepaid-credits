@@ -40,13 +40,20 @@ $user_details = array();
 
 $query = '
 SELECT
+    DISTINCT(`user_id`)
+  FROM '.PPCREDITS_SPENT_TABLE.'
+;';
+$user_ids = query2array($query, null, 'user_id');
+
+$query = '
+SELECT
     '.$conf['user_fields']['id'].' AS id,
     '.$conf['user_fields']['username'].' AS username,
     '.$conf['user_fields']['email'].' AS email,
     ppcredits
   FROM '.USERS_TABLE.' AS u
     INNER JOIN '.USER_INFOS_TABLE.' AS uf ON uf.user_id = u.'.$conf['user_fields']['id'].'
-  WHERE id != '.$conf['guest_id'].'
+  WHERE id IN ('.join(',', $user_ids).')
 ;';
 $result = pwg_query($query);
 while ($row = pwg_db_fetch_assoc($result))
