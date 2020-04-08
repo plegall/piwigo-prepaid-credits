@@ -43,7 +43,16 @@ SELECT
     DISTINCT(`user_id`)
   FROM '.PPCREDITS_SPENT_TABLE.'
 ;';
-$user_ids = query2array($query, null, 'user_id');
+$user_ids_spent = query2array($query, null, 'user_id');
+
+$query = '
+SELECT
+    DISTINCT(`user_id`)
+  FROM '.PPCREDITS_PAID_TABLE.'
+;';
+$user_ids_paid = query2array($query, null, 'user_id');
+
+$user_ids = array_unique(array_merge($user_ids_spent, $user_ids_paid));
 
 $query = '
 SELECT
