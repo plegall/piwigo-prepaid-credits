@@ -44,3 +44,4 @@ $lang['Credits history'] = 'Historique des crédits';
 $lang['%u credits bought on %s (%s %s)'] = '%u crédits achetés sur %s (%s %s)';
 $lang['%u credits spent for %s (size %s)'] = '%u crédits dépensés pour la photo %s (taille %s)';
 $lang['open it'] = 'l\'ouvrir';
+?>
