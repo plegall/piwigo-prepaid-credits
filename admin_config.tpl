@@ -24,15 +24,15 @@ input[type="number"] {
 {/if}
 {/html_style}
 
-<h2>Prepaid Credits - {'Configuration'|@translate}</h2>
+<h2>Prepaid Credits - {'Configuration'|translate}</h2>
 
 <form method="post" action="" class="properties">
 <fieldset>
   <legend>{'General'|translate}</legend>
   <ul>
-    <li>Default cost <input type="number" step="1" min="1" max="999" name="photo_cost" value="{$photo_cost}"> credit(s) per photo</li>
+    <li>{'Default cost'|translate} <input type="number" step="1" min="1" max="999" name="photo_cost" value="{$photo_cost}"> {'credit(s) per photo'|translate}</li>
     <li>
-      Download available for <input type="number" step="1" min="1" max="999" name="download_period_length" value="{$download_period_length}">
+      {'Download available for'|translate} <input type="number" step="1" min="1" max="999" name="download_period_length" value="{$download_period_length}">
       <select name="download_period_unity" size="1">
         {html_options options=$download_period_unity_options selected=$download_period_unity_options_selected}
       </select>
@@ -40,7 +40,7 @@ input[type="number"] {
   </ul>
 </fieldset>
 <fieldset>
-  <legend>{'Sizes'|translate}</legend>
+  <legend>{'Photo sizes'|translate}</legend>
     <table style="margin:0">
     {foreach from=$sizes item=d key=type}
       <tr>
@@ -55,7 +55,7 @@ input[type="number"] {
         </td>
         <td>
           <span class="sizeDetails" style="display:{if !empty($d)}inline{else}none{/if}">
-            <input type="number" step="1" min="1" max="999" name="size_{$type}" value="{$d}"> times the base cost per photo
+            <input type="number" step="1" min="1" max="999" name="size_{$type}" value="{$d}"> {'times the base cost per photo'|translate}
           </span>
         </td>
       </tr>
@@ -72,12 +72,12 @@ input[type="number"] {
           <span class="icon-check"></span>
           <input type="checkbox" name="sell_credits" {if $sell_credits}checked="checked"{/if}>
         </span>
-        Users can buy credits
+        {'Users can buy credits'|translate}
       </label>
     </li>
-    <li class="sell_credits-enabled">PayPal account <input type="text" name="paypal_account" value="{$paypal_account}"></li>
+    <li class="sell_credits-enabled">{'PayPal account'|translate} <input type="text" name="paypal_account" value="{$paypal_account}"></li>
     <li class="sell_credits-enabled">
-      Price per credit <input type="number" min="0.01" step="0.01" name="price_per_credit" value="{$price_per_credit}">
+      {'Price per credit'|translate} <input type="number" min="0.01" step="0.01" name="price_per_credit" value="{$price_per_credit}">
       <select name="currency">{html_options options=$currency_options selected=$currency_options_selected}</select>
     </li>
   </ul>

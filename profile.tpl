@@ -4,14 +4,15 @@
 {html_style}{literal}
 .loading {display:none;}
 #paypalForm {display:none;}
+.ppcreditsBuyCredits legend {text-transform:capitalize;}
 {/literal}{/html_style}
 
-<fieldset>
-  <legend>Credits</legend>
-  <p>You have {$CREDITS_LEFT} credits left</p>
+<fieldset class="ppcreditsBuyCredits">
+  <legend>{'credits'|translate}</legend>
+  <p>{'You have %d credits left'|translate:$CREDITS_LEFT}</p>
 {if $SELL_CREDITS}
-  <p>Buy <input name="nb_credits" type="number" value="{$NB_CREDITS}" min="1" max="999" step="1"> credits (<span data-unitprice="{$PRICE_PER_CREDIT}" id="money_amount">{$MONEY_AMOUNT}</span> {$CURRENCY})
-    <input type="submit" value="{'Pay on Paypal.com'|@translate}" id="paypalButton">
+  <p>{'Buy'|translate} <input name="nb_credits" type="number" value="{$NB_CREDITS}" min="1" max="999" step="1"> {'credits'|translate} (<span data-unitprice="{$PRICE_PER_CREDIT}" id="money_amount">{$MONEY_AMOUNT}</span> {$CURRENCY})
+    <input type="submit" value="{'Pay on Paypal.com'|translate}" id="paypalButton">
     <img class="loading" src="themes/default/images/ajax-loader-small.gif">
   </p>
 
@@ -35,7 +36,7 @@
 
 
 <fieldset class="ppcreditsHistory">
-  <legend>Credits history</legend>
+  <legend>{'Credits history'|translate}</legend>
 
   <ul>
 {foreach from=$history_lines item=line}

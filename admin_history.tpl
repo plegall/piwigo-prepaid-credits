@@ -1,3 +1,4 @@
+{combine_script id='common' load='footer' path='admin/themes/default/js/common.js'}
 {combine_script id='jquery.dataTables' load='footer' path='themes/default/js/plugins/jquery.dataTables.js'}
 
 {html_style}
@@ -27,12 +28,16 @@
 .historyDetails {
   text-align:left;
 }
+
+.filter input[type="submit"] {
+  padding:3px 10px;
+}
 {/html_style}
 
 <h2>Prepaid Credits - {'History'|@translate}</h2>
 
 <form action="{$F_ACTION}" method="GET">
-<fieldset>
+<fieldset class="filter">
   <legend>{'Filter'|@translate}</legend>
 	<label>{'User'|@translate}
 		<select name="user">
@@ -46,16 +51,33 @@
 </fieldset>
 </form>
 
-{footer_script}
-var oTable = jQuery('#historyTable').dataTable({});
-{/footer_script}
+{footer_script}{literal}
+var oTable = jQuery('#historyTable').dataTable({
+  language: {
+    processing: "{/literal}{'Loading...'|translate|escape:'javascript'}{literal}",
+    lengthMenu: sprintf("{/literal}{'Show %s lines'|translate|escape:'javascript'}{literal}", '_MENU_'),
+    zeroRecords: "{/literal}{'No matching line found'|translate|escape:'javascript'}{literal}",
+    info: sprintf("{/literal}{'Showing %s to %s of %s lines'|translate|escape:'javascript'}{literal}", '_START_', '_END_', '_TOTAL_'),
+    infoEmpty: "{/literal}{'No matching line found'|translate|escape:'javascript'}{literal}",
+    infoFiltered: sprintf("{/literal}{'(filtered from %s total lines)'|translate|escape:'javascript'}{literal}", '_MAX_'),
+    search: '<span class="icon-search"></span>'+"{/literal}{'Search'|translate|escape:'javascript'}{literal}",
+    loadingRecords: "{/literal}{'Loading...'|translate|escape:'javascript'}{literal}",
+    paginate: {
+        first:    "{/literal}{'First'|translate|escape:'javascript'}{literal}",
+        previous: '← '+"{/literal}{'Previous'|translate|escape:'javascript'}{literal}",
+        next:     "{/literal}{'Next'|translate|escape:'javascript'}{literal}"+' →',
+        last:     "{/literal}{'Last'|translate|escape:'javascript'}{literal}",
+    }
+  }
+});
+{/literal}{/footer_script}
 
 <table id="historyTable">
 <thead>
 <tr class="throw">
 	<th class="dtc_date">{'Date'|@translate}</th>
 	<th class="dtc_user">{'User'|@translate}</th>
-	<th class="dtc_user">{'User Email'|@translate}</th>
+	<th class="dtc_user">{'Email address'|@translate}</th>
 	<th class="dtc_stat">{'Credits paid'|@translate}</th>
 	<th class="dtc_stat">{'Credits spent'|@translate}</th>
 	<th class="dtc_stat">{'Details'|@translate}</th>

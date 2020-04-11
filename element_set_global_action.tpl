@@ -22,7 +22,7 @@ jQuery(document).ready(function() {
 {/literal}{/footer_script}
 
 <div id="ppcredits">
-  <label><input type="radio" name="price" value="default" checked="checked"> {'follow default price'|@translate} ({$PPCREDITS_DEFAULT_PRICE} credits currently)</label>
-  <br><label><input type="radio" name="price" value="specific"> {'specific fixed price'|@translate}</label>
-  <span id="specificPrice"><input name="nb_credits" type="number" value="{$PPCREDITS_DEFAULT_PRICE}" min="1" max="999"> credits</span>
+  <label><input type="radio" name="price" value="default" checked="checked"> {'follow default price (%s credits currently)'|translate:$PPCREDITS_DEFAULT_PRICE}</label>
+  <br><label><input type="radio" name="price" value="specific"> {'specific fixed price'|translate}</label>
+  <span id="specificPrice"><input name="nb_credits" type="number" value="{$PPCREDITS_DEFAULT_PRICE}" min="1" max="999"> {'credits'|translate}</span>
 </div>

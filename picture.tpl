@@ -1,3 +1,4 @@
+{combine_script id='common' load='footer' require='jquery' path='admin/themes/default/js/common.js'}
 {combine_script id='jquery.confirm' load='footer' require='jquery' path='plugins/prepaid_credits/vendor/jquery-confirm.min.js'}
 {combine_css path="plugins/prepaid_credits/vendor/jquery-confirm.min.css"}
 
@@ -15,11 +16,11 @@ jQuery("#ppcreditsBuyPhoto a.buy").click(function(){
     jQuery.confirm({
       theme: 'modern',
       useBootstrap: false,
-      title: "Buy this photo",
-      content: "Do you want to use "+cost+" credits to download this photo?",
+      title: "{'Buy this photo'|translate}",
+      content: sprintf("{'Do you want to use %d credits to download this photo?'|translate}", cost),
       buttons: {
         confirm: {
-          text: "yes, buy",
+          text: "{'yes, buy'|translate}",
           btnClass: 'btn-blue',
           action: function() {
             jQuery.ajax({
@@ -40,24 +41,24 @@ jQuery("#ppcreditsBuyPhoto a.buy").click(function(){
                   jQuery.alert({
                     theme: 'modern',
                     useBootstrap: false,
-                    title: "Thank you!",
-                    content: data.result.nb_credits+' credits taken from your account. <a class="prepaid-credits-download" href="'+data.result.download_url+'">Download now</a>',
+                    title: "{'Thank you!'|translate}",
+                    content: sprintf("{'%d credits taken from your account.'|translate}", Number(data.result.nb_credits))+' <a class="prepaid-credits-download" href="'+data.result.download_url+'">'+"{'Download now'|translate}"+'</a>',
                   });
 
                   $this.closest('li').html('<a class="download" href="'+data.result.download_url+'">'+data.result.size_label+'</a>');
                 }
                 else {
-                  jQuery.alert("error on buying photo");
+                  jQuery.alert("#1 {'error while buying photo'|translate}");
                 }
               },
               error:function(XMLHttpRequest, textStatus, errorThrows) {
-                alert("error while buying photo");
+                jQuery.alert("#2 {'error while buying photo'|translate}");
               }
             });
           }
         },
         cancel: {
-          text:"no, cancel",
+          text:"{'no, cancel'|translate}",
         }
       }
     });
@@ -66,7 +67,7 @@ jQuery("#ppcreditsBuyPhoto a.buy").click(function(){
     jQuery.confirm({
       theme: 'modern',
       useBootstrap: false,
-      title: "Not enough credits!",
+      title: "{'Not enough credits!'|translate}",
       content: '{$MISSING_CREDITS_SENTENCE|escape:javascript}',
     });
   }

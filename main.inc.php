@@ -276,7 +276,7 @@ function ppcredits_picture()
         ? $picture['current']['ppcredits_price']
         : $conf['ppcredits']['photo_cost'],
       'MISSING_CREDITS_SENTENCE' => $conf['ppcredits']['sell_credits']
-        ? l10n('No worry! <a href="%s">Buy more credits on your profile page.</a>', 'profile.php')
+        ? l10n('No worry!').' <a href="profile.php">'.l10n('Buy more credits on your profile page.').'</a>'
         : l10n('Need more? Contact us to get more credits.')
       )
     );
@@ -378,18 +378,18 @@ function ppcredits_add_users_column_prefilter($content, &$smarty)
 
   // add the "add_credits" action in the select list
   $search = '<option value="show_nb_hits">';
-  $replace = '<option value="add_credits">Add credits</option><option value="remove_credits">Remove credits</option>'.$search;
+  $replace = '<option value="add_credits">{\'Add credits\'|translate}</option><option value="remove_credits">{\'Remove credits\'|translate}</option>'.$search;
   $content = str_replace($search, $replace, $content);
   
   // add the "add_credits" action
   $search = '<p id="applyActionBlock"';
   $replace = '{* add_credits *}
     <div id="action_add_credits" class="bulkAction">
-      <input name="add_credits" type="number" value="5" min="1" max="999"> credits
+      <input name="add_credits" type="number" value="5" min="1" max="999"> {\'credits\'|translate}
     </div>
     {* remove_credits *}
     <div id="action_remove_credits" class="bulkAction">
-      <input name="remove_credits" type="number" value="5" min="1" max="999"> credits
+      <input name="remove_credits" type="number" value="5" min="1" max="999"> {\'credits\'|translate}
     </div>'.$search;
   $content = str_replace($search, $replace, $content);
 
