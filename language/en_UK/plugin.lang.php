@@ -21,7 +21,7 @@ $lang['Set price'] = 'Set price';
 $lang['follow default price (%s credits currently)'] = 'follow default price (%s credits currently)';
 $lang['specific fixed price'] = 'specific fixed price';
 $lang['credits'] = 'credits';
-$lang['Add credits'] = 'Add credits'
+$lang['Add credits'] = 'Add credits';
 $lang['Remove credits'] = 'Remove credits';
 
 $lang['Buy this photo'] = 'Buy this photo';
