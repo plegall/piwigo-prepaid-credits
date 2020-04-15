@@ -42,3 +42,6 @@ $lang['Need more? Contact us to get more credits.'] = 'Meer nodig? Neem contact 
 $lang['No matching line found'] = 'Geen passende regel gevonden';
 $lang['No worry!'] = 'Geen zorg!';
 $lang['Not enough credits!'] = 'Niet genoeg tegoeden!';
+$lang['Show %s lines'] = 'Toon %s lijnen';
+$lang['%u credits spent for %s (size %s)'] = '%u kredieten gebruikt op %s (size %s)';
+$lang['%u credits bought on %s (%s %s)'] = '%u kredieten gekocht op %s (%s %s)';
