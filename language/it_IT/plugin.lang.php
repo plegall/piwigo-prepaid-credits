@@ -25,3 +25,6 @@ $lang['Buy'] = 'Acquista';
 $lang['Buy this photo'] = 'Acquista questa foto';
 $lang['Details'] = 'Dettagli';
 $lang['Download now'] = 'Scarica adesso';
+$lang['follow default price (%s credits currently)'] = 'segui il costo predefinito (attualmente %s crediti)';
+$lang['open it'] = 'aprilo';
+$lang['specific fixed price'] = 'costo specifico';
