@@ -39,3 +39,7 @@ $lang['Credits paid'] = 'Samaksātie kredīti';
 $lang['Credits spent'] = 'Iztērētie kredīti';
 $lang['Credits history'] = 'Kredītvēsture';
 $lang['Add credits'] = 'Pievienot kredītu';
+$lang['credit(s) per photo'] = 'kredīti uz foto';
+$lang['Show %s lines'] = 'Rādīt %s rindas ';
+$lang['%u credits spent for %s (size %s)'] = '%u kredītu iztērēti priekš %s (size %s)';
+$lang['%u credits bought on %s (%s %s)'] = '%u kredīti nopirkti %s (%s %s)';
