@@ -43,3 +43,9 @@ $lang['credit(s) per photo'] = 'kredīti uz foto';
 $lang['Show %s lines'] = 'Rādīt %s rindas ';
 $lang['%u credits spent for %s (size %s)'] = '%u kredītu iztērēti priekš %s (size %s)';
 $lang['%u credits bought on %s (%s %s)'] = '%u kredīti nopirkti %s (%s %s)';
+$lang['times the base cost per photo'] = 'reizes no pamatcenas par foto';
+$lang['Showing %s to %s of %s lines'] = '
+Rādīt %s līdz %s no %s rindām';
+$lang['No matching line found'] = 'Izvēlētā rinda nav atrasta';
+$lang['(filtered from %s total lines)'] = '(atlasīts no %s visām rindām) ';
+$lang['follow default price (%s credits currently)'] = 'sekot cenai pēc noklusējuma (%s kredītu patlaban)';
