@@ -22,3 +22,9 @@
   padding: 5px 10px;
   border-radius: 5px;
 }
+
+/* Bootstrap Darkroom */
+#main-picture-container #ppcreditsBuyPhoto {
+  max-width:300px;
+  margin:0 auto;
+}

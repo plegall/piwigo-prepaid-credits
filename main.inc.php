@@ -286,9 +286,18 @@ function ppcredits_picture()
 
 function ppcredits_picture_prefilter($content, &$smarty)
 {
-  $search = '<dl id="standard"';
-  
-  $replace = '{$CREDITS_CONTENT}'.$search;
+  global $user;
+
+  if ('bootstrap_darkroom' == $user['theme'])
+  {
+    $search = '<div id="theImageComment"';
+    $replace = '{$CREDITS_CONTENT}'.$search;
+  }
+  else
+  {
+    $search = '<dl id="standard"';
+    $replace = '{$CREDITS_CONTENT}'.$search;
+  }
   
   $content = str_replace($search, $replace, $content);
   return $content;
