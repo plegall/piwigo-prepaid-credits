@@ -6,6 +6,7 @@ Description: Visitors buy photos with prepaid credits
 Plugin URI: http://piwigo.org/ext/extension_view.php?eid=
 Author: plg
 Author URI: http://le-gall.net/pierrick
+Has Settings: true
 */
 
 if (!defined('PHPWG_ROOT_PATH'))
@@ -49,24 +50,6 @@ function ppcredits_init()
 
   load_language('plugin.lang', dirname(__FILE__).'/');
   load_language('lang', PHPWG_ROOT_PATH.PWG_LOCAL_DIR, array('no_fallback'=>true, 'local'=>true) );
-}
-
-add_event_handler('get_admin_plugin_menu_links', 'ppcredits_admin_menu');
-function ppcredits_admin_menu($menu)
-{
-  global $page;
-
-  $name = 'Prepaid Credits';
-
-  array_push(
-    $menu,
-    array(
-      'NAME' => $name,
-      'URL'  => get_root_url().'admin.php?page=plugin-prepaid_credits'
-      )
-    );
-
-  return $menu;
 }
 
 add_event_handler('loc_end_profile', 'ppcredits_end_profile', 70);
@@ -171,7 +154,7 @@ SELECT
   $template->assign_var_from_handle('CREDITS_CONTENT', 'credits');
 }
 
-function ppcredits_profile_prefilter($content, $smarty)
+function ppcredits_profile_prefilter($content)
 {
   $pattern = '#\{\$PROFILE_CONTENT\}#';
   $replacement = '{$PROFILE_CONTENT}{$CREDITS_CONTENT}';
@@ -284,7 +267,7 @@ function ppcredits_picture()
   $template->assign_var_from_handle('CREDITS_CONTENT', 'credits');
 }
 
-function ppcredits_picture_prefilter($content, &$smarty)
+function ppcredits_picture_prefilter($content)
 {
   global $user;
 
@@ -379,7 +362,7 @@ function ppcredits_add_users_column()
   $template->set_prefilter('user_list', 'ppcredits_add_users_column_prefilter');
 }
 
-function ppcredits_add_users_column_prefilter($content, &$smarty)
+function ppcredits_add_users_column_prefilter($content)
 {
   // add the "Credits" column in the user table
   $search = '<th>{\'registration date\'|@translate}</th>';
