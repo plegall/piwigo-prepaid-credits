@@ -472,6 +472,8 @@ UPDATE '.USER_INFOS_TABLE.'
 
       if ($new_ppcredits < $credits_of_user[$user_id])
       {
+        // WARNING : prior to Piwigo 13, ppcredits = 0 is transformed by mass_updates to ppcredits = NULL
+        // which triggers fatal error because ppcredits cannot be null
         $updates[] = array(
           'user_id' => $user_id,
           'ppcredits' => $new_ppcredits,
