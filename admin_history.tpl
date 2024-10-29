@@ -35,8 +35,8 @@
 {/html_style}
 
 <h2>Prepaid Credits - {'History'|@translate}</h2>
-
-<form action="{$F_ACTION}" method="GET">
+{* action="{$F_ACTION}" *}
+<form method="GET">
 <fieldset class="filter">
   <legend>{'Filter'|@translate}</legend>
 	<label>{'User'|@translate}
@@ -87,12 +87,12 @@ var oTable = jQuery('#historyTable').dataTable({
 {foreach from=$history_lines item=history}
 {strip}
 <tr>
-<td>{$history.occured_on}</td>
-<td>{$history.user}</td>
-<td>{$history.user_email}</td>
-<td>{$history.paid}</td>
-<td>{$history.spent}</td>
-<td class="historyDetails">{$history.details}</td>
+<td>{if isset($history.occured_on)}{$history.occured_on}{/if}</td>
+<td>{if isset($history.user)}{$history.user}{/if}</td>
+<td>{if isset($history.user_email)}{$history.user_email}{/if}</td>
+<td>{if isset($history.paid)}{$history.paid}{/if}</td>
+<td>{if isset($history.spent)}{$history.spent}{/if}</td>
+<td class="historyDetails">{if isset($history.details)}{$history.details}{/if}</td>
 </tr>
 {/strip}
 {/foreach}
