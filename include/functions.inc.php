@@ -484,11 +484,18 @@ function ppcredits_getFilename($row, $filesize=array())
   $filename = str_replace($search, $replace, $file_pattern);
 
   // functions
-  $filename = preg_replace_callback('#\$escape\((.*?)\)#', create_function('$m', 'return str2url($m[1]);'),   $filename);
-  $filename = preg_replace_callback('#\$upper\((.*?)\)#',  create_function('$m', 'return str2upper($m[1]);'), $filename);
-  $filename = preg_replace_callback('#\$lower\((.*?)\)#',  create_function('$m', 'return str2lower($m[1]);'), $filename);
-  $filename = preg_replace_callback('#\$strpad\((.*?),(.*?),(.*?)\)#', create_function('$m', 'return str_pad($m[1],$m[2],$m[3],STR_PAD_LEFT);'), $filename);
+  //$filename = preg_replace_callback('#\$escape\((.*?)\)#', create_function('$m', 'return str2url($m[1]);'),   $filename);
+  //$filename = preg_replace_callback('#\$upper\((.*?)\)#',  create_function('$m', 'return str2upper($m[1]);'), $filename);
+  //$filename = preg_replace_callback('#\$lower\((.*?)\)#',  create_function('$m', 'return str2lower($m[1]);'), $filename);
+  //$filename = preg_replace_callback('#\$strpad\((.*?),(.*?),(.*?)\)#', create_function('$m', 'return str_pad($m[1],$m[2],$m[3],STR_PAD_LEFT);'), $filename);
 
+  /* Replace for PHP 8.x */
+  
+  $filename = preg_replace('#\$escape\((.*?)\)#', str2url($filename[1]), $filename);
+  $filename = preg_replace('#\$upper\((.*?)\)#',  str2upper($filename[1]), $filename);
+  $filename = preg_replace('#\$lower\((.*?)\)#',  str2lower($filename[1]), $filename);
+  $filename = preg_replace('#\$strpad\((.*?),(.*?),(.*?)\)#', str_pad($filename,3,STR_PAD_LEFT), $filename);
+  
   // cleanup
   $filename = preg_replace(
     array('#_+#', '#-+#', '# +#', '#^([_\- ]+)#', '#([_\- ]+)$#'),
